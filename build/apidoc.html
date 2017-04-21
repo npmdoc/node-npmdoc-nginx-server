@@ -1,0 +1,153 @@
+<div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a
+
+        href="https://github.com/dewe/nginx-server"
+
+    >nginx-server (v0.0.4)</a>
+</h1>
+<h4>Utility for controlling an Nginx server</h4>
+<div class="apidocSectionDiv"><a
+    href="#apidoc.tableOfContents"
+    id="apidoc.tableOfContents"
+><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.nginx-server">module nginx-server</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.nginx-server.nginx-server">
+            function <span class="apidocSignatureSpan"></span>nginx-server
+            <span class="apidocSignatureSpan">(options)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.nginx-server" id="apidoc.module.nginx-server">module nginx-server</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.nginx-server.nginx-server" id="apidoc.element.nginx-server.nginx-server">
+        function <span class="apidocSignatureSpan"></span>nginx-server
+        <span class="apidocSignatureSpan">(options)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">nginx-server = function (options) {
+  var command = options.command || &#x27;nginx&#x27;;
+  var log = options.log || function () {};
+  var args = argument(options);
+  var nginx;
+
+  if (options &#x26;&#x26; !options.config) {
+    throw new Error(&#x27;options.config is required&#x27;);
+  }
+
+  function start(callback, env) {
+    var started;
+    log(&#x27;Starting: &#x27; + command + &#x27; &#x27; + args.join(&#x27; &#x27;));
+
+    nginx = spawn(command, args, { env: env });
+    nginx.stdout.on(&#x27;data&#x27;, log_nginx_buf);
+    nginx.stderr.on(&#x27;data&#x27;, log_nginx_buf);
+
+    nginx.stderr.on(&#x27;data&#x27;, function (buf) {
+      if (!started &#x26;&#x26; buf.toString().match(/start worker process \d+/)) {
+        started = true;
+        log(&#x27;Nginx worker process started.&#x27;);
+        callback();
+      }
+    });
+  }
+
+  function stop(callback) {
+    log(&#x27;Stopping.&#x27;);
+
+    nginx.on(&#x27;close&#x27;, function () {
+      log(&#x27;Nginx server closed.&#x27;);
+      if (callback) {
+        callback();
+      }
+    });
+
+    spawn(command, args.concat([&#x27;-s&#x27;, &#x27;stop&#x27;]));
+  }
+
+  function log_nginx_buf(buf) {
+    var lines = buf.toString().split(&#x27;\n&#x27;);
+    lines.forEach(function (line) {
+      if (line.length) {
+        line.match(/\[debug\]/) ? console.log(&#x27;d:&#x27;, line) : log(line);
+      }
+    });
+  }
+
+  return {
+    start: start,
+    stop: stop
+  };
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
